@@ -31,7 +31,7 @@ df_se$paper <- as.factor(df_se$paper)
 ggplot(df_se, aes(x = score)) +
   geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
   facet_wrap(~fig) +  # Facet by 'fig'
-  theme_minimal() +
+  theme_dark() +
   labs(title = "Distribution of Scores", x = "Score", y = "Count")
 ```
 
@@ -43,7 +43,7 @@ ggplot(df_se, aes(x = score)) +
 ggplot(df_se, aes(x = pass.pct, y = score)) +
   geom_point(alpha = 0.6, color = "blue") +  # Scatter points
   geom_smooth(method = "lm", color = "red", se = TRUE) +  # Regression line with confidence interval
-  theme_minimal() +
+  theme_dark() +
   labs(title = "Relationship Between Pass Percentage and Score",
        x = "Pass Percentage", y = "Score")
 ```
@@ -58,7 +58,7 @@ ggplot(df_se, aes(x = pass.pct, y = score)) +
   geom_point(alpha = 0.6, aes(color = paper)) +  # Color by paper
   geom_smooth(method = "lm", color = "red", se = TRUE) +
   facet_wrap(~paper) +  # Facet by paper
-  theme_minimal() +
+  theme_dark() +
   labs(title = "Pass Percentage vs Score by Paper",
        x = "Pass Percentage", y = "Score", color = "Paper")
 ```
@@ -73,7 +73,7 @@ ggplot(df_se, aes(x = grader, y = score, shape = as.factor(paper), fill = grader
   geom_jitter(width = 0.3, alpha = 0.6, size = 2) +  # Adjusted jitter properties
   stat_summary(fun = median, geom = "point", color = "red", size = 4, shape = 23, fill = "red") +  # Median indicator in red
   scale_fill_viridis_d() +  # Apply discrete viridis color scale
-  theme_minimal() +
+  theme_dark() +
   labs(title = "Violin Plot of Scores by Grader with Jitter and Median",
        x = "Grader", y = "Score", shape = "Paper", fill = "Grader") +
   theme(legend.position = "right")
@@ -126,7 +126,7 @@ ggcorrplot(corr_matrix,
            lab_size = 3,  
            colors = viridis(3, option = "inferno"),  
            title = "Correlation Matrix (Pass Pct, Score, Grader, Paper) with P-Values",
-           ggtheme = theme_minimal())
+           ggtheme = theme_dark())
 ```
 
 ## Row 
@@ -154,7 +154,7 @@ ggplot(corr_melted, aes(Var1, Var2, fill = value)) +
   geom_tile(color = "white") +  # Add white grid lines between cells
   scale_fill_viridis(option = "plasma", limits = c(-1, 1)) +  # High contrast colors
   geom_text(aes(label = sprintf("%.2f", value)), color = "black", size = 4) +  # Add correlation values
-  theme_minimal() +
+  theme_dark() +
   labs(title = "Correlation Heatmap", x = "", y = "") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
@@ -181,7 +181,7 @@ boot_df <- data.frame(correlations = boot_results$t)
 ggplot(boot_df, aes(x = correlations)) +
   geom_histogram(binwidth = 0.01, fill = "blue", color = "black", alpha = 0.7) +
   geom_vline(xintercept = boot_ci$percent[4:5], color = "red", linetype = "dashed") +
-  theme_minimal() +
+  theme_dark() +
   labs(title = "Bootstrapped Correlation Coefficients with Confidence Intervals",
        x = "Correlation Coefficient", y = "Frequency") +
   annotate("text", x = boot_ci$percent[4], y = 30, label = sprintf("Lower CI: %.2f", boot_ci$percent[4]), hjust = 1, color = "red") +
@@ -226,7 +226,7 @@ qqPlot(df_se$score, main = "Q-Q Plot of Scores")
 # Visual inspection using a histogram
 ggplot(df_se, aes(x = score)) +
   geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
-  theme_minimal() +
+  theme_dark() +
   labs(title = "Histogram of Scores", x = "Score", y = "Count")
 ```
 ##
