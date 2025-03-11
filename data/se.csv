@@ -1,4 +1,4 @@
-citekey,domain,grader,paper,fig,pass-pct,score
+citekey,domain,grader,paper,fig,pass_pct,score
 @starchReliabilityGradingHighSchool1912,Writing,Teacher,A,1,75,60
 @starchReliabilityGradingHighSchool1912,Writing,Teacher,A,1,75,64
 @starchReliabilityGradingHighSchool1912,Writing,Teacher,A,1,75,65
