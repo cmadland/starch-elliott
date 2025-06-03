@@ -24,7 +24,6 @@ library(car)  # For the qqPlot function
 # Load the dataset
 df_se <- read.csv("data/se.csv")
 df_se$paper <- as.factor(df_se$paper)
-head(df_se)
 ```
 
 ##
