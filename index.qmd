@@ -24,6 +24,7 @@ library(car)  # For the qqPlot function
 # Load the dataset
 df_se <- read.csv("data/se.csv")
 df_se$paper <- as.factor(df_se$paper)
+head(df_se)
 ```
 
 ##
@@ -43,7 +44,7 @@ summary_stats <- df_se %>%
 kable(summary_stats, caption = "Summary Statistics for Scores")
 ```
 
-
+##
 
 ```{r}
 # Histogram of scores
@@ -54,9 +55,42 @@ ggplot(df_se, aes(x = score)) +
   labs(title = "Distribution of Scores", x = "Score", y = "Count")
 ```
 
+##
+
+```{r}
+# Histogram of scores
+ggplot(df_se, aes(x = score)) +
+  geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
+  facet_wrap(~grader) +  # Facet by 'fig'
+  theme_grey() +
+  labs(title = "Distribution of Scores", x = "Score", y = "Count")
+```
 
 ## Row 
 
+```{r}
+# Histogram of scores
+mean_score <- mean(df_se$score, na.rm = TRUE)
+sd_score <- sd(df_se$score, na.rm = TRUE)
+
+ggplot(df_se, aes(x = score)) +
+  geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
+  geom_vline(xintercept = mean_score, color = "red", linetype = "dashed", size = 1) +
+  geom_vline(xintercept = mean_score + sd_score, color = "orange", linetype = "dotted", size = 1) +
+  geom_vline(xintercept = mean_score - sd_score, color = "orange", linetype = "dotted", size = 1) +
+  facet_wrap(~pass_pct) +
+  theme_grey() +
+  labs(
+    title = "Distribution of Scores (Mean and SD)",
+    x = "Score",
+    y = "Count"
+  ) +
+  annotate("text", x = mean_score, y = Inf, label = sprintf("Mean = %.2f", mean_score), vjust = -0.5, color = "red") +
+  annotate("text", x = mean_score + sd_score, y = Inf, label = sprintf("+1 SD = %.2f", mean_score + sd_score), vjust = -1.5, color = "orange") +
+  annotate("text", x = mean_score - sd_score, y = Inf, label = sprintf("-1 SD = %.2f", mean_score - sd_score), vjust = -1.5, color = "orange")
+```
+
+##
 
 ```{r}
 # Violin + Jitter plot with median indicators
@@ -198,3 +232,4 @@ cronbach_alpha_teachers <- alpha(reliability_data_teachers)
 # Print the results
 print(cronbach_alpha_teachers)
 ```
+
