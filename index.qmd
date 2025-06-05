@@ -101,29 +101,29 @@ ggplot(df_se, aes(x = grader, y = score, shape = as.factor(paper), fill = grader
 
 ```{r}
 
-# Select relevant columns
-df_selected <- df_se[, c("pass_pct", "score", "grader", "paper")]
+# # Select relevant columns
+# df_selected <- df_se[, c("pass_pct", "score", "grader", "paper")]
 
-# Convert categorical variables ('grader' and 'paper') to numeric
-df_selected$grader <- as.numeric(as.factor(df_selected$grader))
-df_selected$paper <- as.numeric(as.factor(df_selected$paper))
+# # Convert categorical variables ('grader' and 'paper') to numeric
+# df_selected$grader <- as.numeric(as.factor(df_selected$grader))
+# df_selected$paper <- as.numeric(as.factor(df_selected$paper))
 
-# Handle missing values
-df_selected <- na.omit(df_selected)  
+# # Handle missing values
+# df_selected <- na.omit(df_selected)  
 
-# Compute correlation matrix
-corr_matrix <- cor(df_selected, use = "pairwise.complete.obs")
+# # Compute correlation matrix
+# corr_matrix <- cor(df_selected, use = "pairwise.complete.obs")
 
-# Convert correlation matrix to a long format for ggplot
-corr_melted <- melt(corr_matrix)
+# # Convert correlation matrix to a long format for ggplot
+# corr_melted <- melt(corr_matrix)
 
-# Create the heatmap
-ggplot(corr_melted, aes(Var1, Var2, fill = value)) +
-  geom_tile(color = "white") +  # Add white grid lines between cells
-  scale_fill_viridis(option = "plasma", limits = c(-1, 1)) +  # High contrast colors
-  geom_text(aes(label = sprintf("%.2f", value)), color = "black", size = 4) +  # Add correlation values
-  theme_grey() +
-  labs(title = "Correlation Heatmap", x = "", y = "") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# # Create the heatmap
+# ggplot(corr_melted, aes(Var1, Var2, fill = value)) +
+#   geom_tile(color = "white") +  # Add white grid lines between cells
+#   scale_fill_viridis(option = "plasma", limits = c(-1, 1)) +  # High contrast colors
+#   geom_text(aes(label = sprintf("%.2f", value)), color = "black", size = 4) +  # Add correlation values
+#   theme_grey() +
+#   labs(title = "Correlation Heatmap", x = "", y = "") +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
