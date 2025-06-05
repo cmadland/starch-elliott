@@ -25,22 +25,6 @@ df_se <- read.csv("data/se.csv")
 df_se$paper <- as.factor(df_se$paper)
 ```
 
-##
-
-<!-- ```{r}
-# Summarize the data
-# summary_stats <- df_se %>%
-#   dplyr::summarise(
-#     median = median(score),  # creates new variable called `median` from the output of `median(score)`
-    # mean = mean(score),      # creates new variable called `mean` from the output of `mean(score)`
-    # IQR = IQR(score),
-    # var = var(score),
-    # sd = sd(score)
-  )
-
-# Print the summary statistics as a nicely formatted table
-# kable(summary_stats, caption = "Summary Statistics")
-``` -->
 
 ```{r}
 ggplot(df_se, aes(x = score)) +
@@ -55,21 +39,22 @@ ggplot(df_se, aes(x = score)) +
   labs(title = "Histogram of Scores", x = "Score", y = "Count")
 ```
 
-##
-
 ```{r}
 # Histogram of scores
 ggplot(df_se, aes(x = score)) +
   geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
-  facet_wrap(~fig, ncol = 2) +  # Facet by 'fig', 2 columns) 
+  facet_wrap(~fig, ncol = 2) +  # Facet by 'fig', 2 columns
+  geom_vline(aes(xintercept = median(score, na.rm = TRUE)), color = "red", linetype = "dashed", size = 1) +
+  geom_vline(aes(xintercept = mean(score, na.rm = TRUE) + sd(score, na.rm = TRUE)), color = "orange", linetype = "dotted", size = 1) +
+  geom_vline(aes(xintercept = mean(score, na.rm = TRUE) - sd(score, na.rm = TRUE)), color = "orange", linetype = "dotted", size = 1) +
+  annotate("text", x = median(df_se$score, na.rm = TRUE), y = Inf, label = paste0("Median = ", round(median(df_se$score, na.rm = TRUE), 2)), vjust = -0.5, color = "red") +
+  annotate("text", x = mean(df_se$score, na.rm = TRUE) + sd(df_se$score, na.rm = TRUE), y = Inf, label = paste0("+1 SD = ", round(mean(df_se$score, na.rm = TRUE) + sd(df_se$score, na.rm = TRUE), 2)), vjust = -1.5, color = "orange") +
+  annotate("text", x = mean(df_se$score, na.rm = TRUE) - sd(df_se$score, na.rm = TRUE), y = Inf, label = paste0("-1 SD = ", round(mean(df_se$score, na.rm = TRUE) - sd(df_se$score, na.rm = TRUE), 2)), vjust = -1.5, color = "orange") +
   theme_grey() +
   labs(title = "Distribution of Scores by Figure", x = "Score", y = "Count")
 ```
 
-
-
-
-
+##
 
 
 ```{r}
@@ -77,11 +62,16 @@ ggplot(df_se, aes(x = score)) +
 ggplot(df_se, aes(x = score)) +
   geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
   facet_wrap(~grader) +  # Facet by 'grader'
+  geom_vline(aes(xintercept = median(score, na.rm = TRUE)), color = "red", linetype = "dashed", size = 1) +
+  geom_vline(aes(xintercept = mean(score, na.rm = TRUE) + sd(score, na.rm = TRUE)), color = "orange", linetype = "dotted", size = 1) +
+  geom_vline(aes(xintercept = mean(score, na.rm = TRUE) - sd(score, na.rm = TRUE)), color = "orange", linetype = "dotted", size = 1) +
+  annotate("text", x = median(df_se$score, na.rm = TRUE), y = Inf, label = paste0("Median = ", round(median(df_se$score, na.rm = TRUE), 2)), vjust = -0.5, color = "red") +
+  annotate("text", x = mean(df_se$score, na.rm = TRUE) + sd(df_se$score, na.rm = TRUE), y = Inf, label = paste0("+1 SD = ", round(mean(df_se$score, na.rm = TRUE) + sd(df_se$score, na.rm = TRUE), 2)), vjust = -1.5, color = "orange") +
+  annotate("text", x = mean(df_se$score, na.rm = TRUE) - sd(df_se$score, na.rm = TRUE), y = Inf, label = paste0("-1 SD = ", round(mean(df_se$score, na.rm = TRUE) - sd(df_se$score, na.rm = TRUE), 2)), vjust = -1.5, color = "orange") +
   theme_grey() +
   labs(title = "Distribution of Scores by Grader", x = "Score", y = "Count")
 ```
 
-## Row 
 
 
 ```{r}
@@ -92,7 +82,7 @@ ggplot(df_se, aes(x = grader, y = score, shape = as.factor(paper), fill = grader
   stat_summary(fun = median, geom = "point", color = "red", size = 4, shape = 23, fill = "red") +  # Median indicator in red
   scale_fill_viridis_d() +  # Apply discrete viridis color scale
   theme_grey() +
-  labs(title = "Violin Plot of Scores by Grader with Jitter and Median",
+  labs(title = "Violin Plot of Scores by Grader",
        x = "Grader", y = "Score", shape = "Paper", fill = "Grader") +
   theme(legend.position = "right")
 ```
