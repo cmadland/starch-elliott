@@ -27,20 +27,20 @@ df_se$paper <- as.factor(df_se$paper)
 
 ##
 
-```{r}
+<!-- ```{r}
 # Summarize the data
-summary_stats <- df_se %>%
-  dplyr::summarise(
-    median = median(score),  # creates new variable called `median` from the output of `median(score)`
+# summary_stats <- df_se %>%
+#   dplyr::summarise(
+#     median = median(score),  # creates new variable called `median` from the output of `median(score)`
     # mean = mean(score),      # creates new variable called `mean` from the output of `mean(score)`
     # IQR = IQR(score),
-    var = var(score),
-    sd = sd(score)
+    # var = var(score),
+    # sd = sd(score)
   )
 
 # Print the summary statistics as a nicely formatted table
-kable(summary_stats, caption = "Summary Statistics")
-```
+# kable(summary_stats, caption = "Summary Statistics")
+``` -->
 
 ```{r}
 ggplot(df_se, aes(x = score)) +
