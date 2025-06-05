@@ -1,0 +1,256 @@
+---
+title: "Visualizing Starch and Elliott (1912)"
+format: dashboard
+scrolling: true
+---
+
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(viridis)
+library(ggcorrplot)
+library(reshape2)  # For melting the correlation matrix
+library(boot)
+library(psych)
+library(car)  # For the qqPlot function
+```
+
+
+```{r}
+# Load the dataset
+df_se <- read.csv("data/se.csv")
+df_se$paper <- as.factor(df_se$paper)
+```
+
+##
+
+```{r}
+# Summarize the data
+summary_stats <- df_se %>%
+  dplyr::summarise(
+    median = median(score),  # creates new variable called `median` from the output of `median(score)`
+    mean = mean(score),      # creates new variable called `mean` from the output of `mean(score)`
+    IQR = IQR(score),
+    var = var(score),
+    sd = sd(score)
+  )
+
+# Print the summary statistics as a nicely formatted table
+# kable(summary_stats, caption = "Summary Statistics for Scores")
+```
+
+##
+
+```{r}
+# Histogram of scores
+ggplot(df_se, aes(x = score)) +
+  geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
+  facet_wrap(~fig) +  # Facet by 'fig'
+  theme_grey() +
+  labs(title = "Distribution of Scores", x = "Score", y = "Count")
+```
+
+```{r}
+ggplot(df_se, aes(x = score)) +
+  geom_dotplot(binwidth = 2, dotsize = 0.8, fill = "blue", color = "black") +
+  facet_wrap(~fig) +
+  theme_grey() +
+  labs(title = "Distribution of Scores (Dotplot)", x = "Score", y = "Count")
+```
+
+##
+
+```{r}
+# ggplot(df_se, aes(x = fig, y = score)) +
+#   geom_point(color = "blue", alpha = 0.7, size = 2, position = position_jitter(width = 0.2, height = 0)) +
+#   theme_grey() +
+  # labs(title = "Distribution of Scores by Figure", x = "Figure", y = "Score")
+```
+
+
+
+
+
+
+##
+
+```{r}
+# Histogram of scores
+ggplot(df_se, aes(x = score)) +
+  geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
+  facet_wrap(~grader) +  # Facet by 'fig'
+  theme_grey() +
+  labs(title = "Distribution of Scores", x = "Score", y = "Count")
+```
+
+## Row 
+
+```{r}
+# Histogram of scores
+mean_score <- mean(df_se$score, na.rm = TRUE)
+sd_score <- sd(df_se$score, na.rm = TRUE)
+
+ggplot(df_se, aes(x = score)) +
+  geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
+  geom_vline(xintercept = mean_score, color = "red", linetype = "dashed", size = 1) +
+  geom_vline(xintercept = mean_score + sd_score, color = "orange", linetype = "dotted", size = 1) +
+  geom_vline(xintercept = mean_score - sd_score, color = "orange", linetype = "dotted", size = 1) +
+  facet_wrap(~pass_pct) +
+  theme_grey() +
+  labs(
+    title = "Distribution of Scores (Mean and SD)",
+    x = "Score",
+    y = "Count"
+  ) +
+  annotate("text", x = mean_score, y = Inf, label = sprintf("Mean = %.2f", mean_score), vjust = -0.5, color = "red") +
+  annotate("text", x = mean_score + sd_score, y = Inf, label = sprintf("+1 SD = %.2f", mean_score + sd_score), vjust = -1.5, color = "orange") +
+  annotate("text", x = mean_score - sd_score, y = Inf, label = sprintf("-1 SD = %.2f", mean_score - sd_score), vjust = -1.5, color = "orange")
+```
+
+##
+
+```{r}
+# Violin + Jitter plot with median indicators
+ggplot(df_se, aes(x = grader, y = score, shape = as.factor(paper), fill = grader)) +
+  geom_violin(alpha = 0.8) +  # Violin plot with color fill
+  geom_jitter(width = 0.3, alpha = 0.6, size = 2) +  # Adjusted jitter properties
+  stat_summary(fun = median, geom = "point", color = "red", size = 4, shape = 23, fill = "red") +  # Median indicator in red
+  scale_fill_viridis_d() +  # Apply discrete viridis color scale
+  theme_grey() +
+  labs(title = "Violin Plot of Scores by Grader with Jitter and Median",
+       x = "Grader", y = "Score", shape = "Paper", fill = "Grader") +
+  theme(legend.position = "right")
+```
+
+## Row 
+
+```{r}
+
+# Select relevant columns
+df_selected <- df_se[, c("pass_pct", "score", "grader", "paper")]
+
+# Convert categorical variables ('grader' and 'paper') to numeric
+df_selected$grader <- as.numeric(as.factor(df_selected$grader))
+df_selected$paper <- as.numeric(as.factor(df_selected$paper))
+
+# Handle missing values
+df_selected <- na.omit(df_selected)  
+
+# Compute correlation matrix
+corr_matrix <- cor(df_selected, use = "pairwise.complete.obs")
+
+# Convert correlation matrix to a long format for ggplot
+corr_melted <- melt(corr_matrix)
+
+# Create the heatmap
+ggplot(corr_melted, aes(Var1, Var2, fill = value)) +
+  geom_tile(color = "white") +  # Add white grid lines between cells
+  scale_fill_viridis(option = "plasma", limits = c(-1, 1)) +  # High contrast colors
+  geom_text(aes(label = sprintf("%.2f", value)), color = "black", size = 4) +  # Add correlation values
+  theme_grey() +
+  labs(title = "Correlation Heatmap", x = "", y = "") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+##
+
+```{r}
+
+# Function to compute correlation coefficients
+cor_fun <- function(data, indices) {
+  d <- data[indices, ]  # Resample with replacement
+  return(cor(d$pass_pct, d$score))
+}
+
+# Bootstrapping
+set.seed(123)  # For reproducibility
+boot_results <- boot(data = df_se, statistic = cor_fun, R = 1000)
+
+# Compute confidence intervals
+boot_ci <- boot.ci(boot_results, type = "perc")
+
+# Plot the bootstrapped correlation coefficients
+boot_df <- data.frame(correlations = boot_results$t)
+ggplot(boot_df, aes(x = correlations)) +
+  geom_histogram(binwidth = 0.01, fill = "blue", color = "black", alpha = 0.7) +
+  geom_vline(xintercept = boot_ci$percent[4:5], color = "red", linetype = "dashed") +
+  theme_grey() +
+  labs(title = "Bootstrapped Correlation Coefficients with Confidence Intervals",
+       x = "Correlation Coefficient", y = "Frequency") +
+  annotate("text", x = boot_ci$percent[4], y = 30, label = sprintf("Lower CI: %.2f", boot_ci$percent[4]), hjust = 1, color = "red") +
+  annotate("text", x = boot_ci$percent[5], y = 30, label = sprintf("Upper CI: %.2f", boot_ci$percent[5]), hjust = 0, color = "red")
+```
+
+## Row 
+
+```{r}
+
+# Select relevant columns for reliability analysis
+reliability_data <- df_se[, c("pass_pct", "score", "grader", "paper")]
+
+# Convert categorical variables ('grader' and 'paper') to numeric
+reliability_data$grader <- as.numeric(as.factor(reliability_data$grader))
+reliability_data$paper <- as.numeric(as.factor(reliability_data$paper))
+
+# Handle missing values
+reliability_data <- na.omit(reliability_data)  # Remove rows with missing data
+
+# Calculate Cronbach's alpha
+cronbach_alpha <- alpha(reliability_data)
+
+# Print the results
+print(cronbach_alpha)
+```
+
+##
+
+```{r}
+# Test for normality using the Shapiro-Wilk test
+shapiro_test <- shapiro.test(df_se$score)
+print(shapiro_test)
+
+# Test for normality using the Kolmogorov-Smirnov test
+ks_test <- ks.test(df_se$score, "pnorm", mean = mean(df_se$score), sd = sd(df_se$score))
+print(ks_test)
+
+# Visual inspection using a Q-Q plot
+qqPlot(df_se$score, main = "Q-Q Plot of Scores")
+
+# Visual inspection using a histogram
+ggplot(df_se, aes(x = score)) +
+  geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
+  theme_grey() +
+  labs(title = "Histogram of Scores", x = "Score", y = "Count")
+```
+##
+
+```{r}
+# Filter the dataset to include only scores from graders who are teachers
+# Assuming 'grader' column contains information about whether the grader is a teacher
+# Replace 'Teacher' with the actual value that indicates a teacher in your dataset
+df_teachers <- df_se %>% filter(grader == 'Teacher')
+
+# Select relevant columns for reliability analysis
+reliability_data_teachers <- df_teachers[, c("pass_pct", "score", "grader", "paper")]
+
+# Convert categorical variables ('grader' and 'paper') to numeric
+reliability_data_teachers$grader <- as.numeric(as.factor(reliability_data_teachers$grader))
+reliability_data_teachers$paper <- as.numeric(as.factor(reliability_data_teachers$paper))
+
+# Handle missing values
+reliability_data_teachers <- na.omit(reliability_data_teachers)  # Remove rows with missing data
+
+# Ensure the data is in a data frame format
+reliability_data_teachers <- as.data.frame(reliability_data_teachers)
+
+# Calculate Cronbach's alpha
+cronbach_alpha_teachers <- alpha(reliability_data_teachers)
+
+# Print the results
+print(cronbach_alpha_teachers)
+```
+
