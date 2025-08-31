@@ -1,10 +1,12 @@
 ---
 title: "Visualizing Starch and Elliott"
 format: dashboard
+scrolling: true 
 ---
 
 
 ```{r}
+library(beeswarm)
 library(tidyverse)
 library(knitr)
 library(ggplot2)
@@ -54,7 +56,7 @@ ggplot(df_se, aes(x = score)) +
   labs(title = "Distribution of Scores by Figure", x = "Score", y = "Count")
 ```
 
-##
+
 
 
 ```{r}
@@ -72,6 +74,23 @@ ggplot(df_se, aes(x = score)) +
   labs(title = "Distribution of Scores by Grader", x = "Score", y = "Count")
 ```
 
+```{r}
+
+# Basic beeswarm plot for df_se
+beeswarm(score ~ grader, data = df_se,
+         pch = 21,                                 # Use filled circles with border
+         col = "black",                            # Outline color
+         bg = viridis::viridis(length(unique(df_se$grader))), # 
+         method="hex",
+         xlab = "Grader", ylab = "Score",
+         main = "Beeswarm Plot of Scores by Grader")
+
+# Add median scores for each grader as horizontal red lines
+meds <- tapply(df_se$score, df_se$grader, median, na.rm = TRUE)
+for(i in seq_along(meds)) {
+  lines(c(i - 0.3, i + 0.3), rep(meds[i], 2), col = "red", lwd = 3)
+}
+```
 
 
 ```{r}
