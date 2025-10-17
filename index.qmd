@@ -29,6 +29,7 @@ df_se$paper <- as.factor(df_se$paper)
 
 
 ```{r}
+#| label: histogram
 ggplot(df_se, aes(x = score)) +
   geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
   geom_vline(aes(xintercept = median(score, na.rm = TRUE)), color = "red", linetype = "dashed", size = 1) +
@@ -42,7 +43,7 @@ ggplot(df_se, aes(x = score)) +
 ```
 
 ```{r}
-# Histogram of scores
+#| label: scores-by-figure
 ggplot(df_se, aes(x = score)) +
   geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
   facet_wrap(~fig, ncol = 2) +  # Facet by 'fig', 2 columns
@@ -60,7 +61,7 @@ ggplot(df_se, aes(x = score)) +
 
 
 ```{r}
-# Histogram of scores
+#| label: scores-by-grader
 ggplot(df_se, aes(x = score)) +
   geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
   facet_wrap(~grader) +  # Facet by 'grader'
@@ -75,26 +76,27 @@ ggplot(df_se, aes(x = score)) +
 ```
 
 ```{r}
+#| label: beeswarm-by-grader
 
-# Basic beeswarm plot for df_se
 beeswarm(score ~ grader, data = df_se,
-         pch = 21,                                 # Use filled circles with border
-         col = "black",                            # Outline color
-         bg = viridis::viridis(length(unique(df_se$grader))), # 
-         method="hex",
+         pch = 21,  # Circle with border and fill
+         col = "black",  # Border color
+         bg = "white",   # Fill color (white)
+         method="swarm",
+         cex=0.9,
          xlab = "Grader", ylab = "Score",
          main = "Beeswarm Plot of Scores by Grader")
 
 # Add median scores for each grader as horizontal red lines
 meds <- tapply(df_se$score, df_se$grader, median, na.rm = TRUE)
 for(i in seq_along(meds)) {
-  lines(c(i - 0.3, i + 0.3), rep(meds[i], 2), col = "red", lwd = 3)
+  lines(c(i - 0.3, i + 0.3), rep(meds[i], 2), col = "red", lwd = 1)
 }
 ```
 
 
 ```{r}
-# Violin + Jitter plot with median indicators
+#| label: violin-by-grader
 ggplot(df_se, aes(x = grader, y = score, shape = as.factor(paper), fill = grader)) +
   geom_violin(alpha = 0.8) +  # Violin plot with color fill
   geom_jitter(width = 0.3, alpha = 0.6, size = 2) +  # Adjusted jitter properties
